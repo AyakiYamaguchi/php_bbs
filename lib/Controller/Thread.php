@@ -42,40 +42,73 @@ class Thread extends \Bbs\Controller {
     }
   }
 
-  public function createThread() {
-    // try {
-    //   $this->_validate();
-    // } catch (\Bbs\Exception\EmptyPost $e) {
-    //     $this->setErrors('login', $e->getMessage());
-    // }
+  public function createThread(){
+    try {
+      $this->validate();
 
-    // $this->setValues('email', $_POST['email']);
+      if (!isset($_POST['thread_name'])){
+        echo "不正な登録情報です";
+        exit;
+      }
+      if ($_POST['thread_name'] === '' || $_POST['comment'] === ''){
+        throw new \Bbs\Exception\EmptyPost("スレッド名または最初のコメントが入力されていません！");
+      }
+    } catch (\Bbs\Exception\EmptyPost $e) {
+        $this->setErrors('create_thread', $e->getMessage());
+    } catch (\Bbs\Exception\CharLength $e) {
+        $this->setErrors('create_thread', $e->getMessage());
+    }
 
-    // if ($this->hasError()) {
-    //   return;
-    // } else {
-    //   try {
-        $threadModel = new \Bbs\Model\Thread();
+    if ($this->hasError()){
+      return;
+    } else {
+      $threadModel = new \Bbs\Model\Thread();
         $threadModel->createThread([
           'title' => $_POST['thread_name'],
           'comment' => $_POST['comment'],
           'user_id' => $_SESSION['me']->id
         ]);
-      // }
-      // catch (\Bbs\Exception\UnmatchEmailOrPassword $e) {
-      //   $this->setErrors('login', $e->getMessage());
-      //   return;
-      // }
 
-      // login処理
-      // session_regenerate_id(true);
-      // $_SESSION['me'] = $user;
-
-      // redirect to home
       header('Location: '. SITE_URL);
       exit;
-    // }
+    }
   }
+
+
+  // public function createThread() {
+  //   // try {
+  //   //   $this->_validate();
+  //   // } catch (\Bbs\Exception\EmptyPost $e) {
+  //   //     $this->setErrors('login', $e->getMessage());
+  //   // }
+
+  //   // $this->setValues('email', $_POST['email']);
+
+  //   // if ($this->hasError()) {
+  //   //   return;
+  //   // } else {
+  //   //   try {
+  //       $threadModel = new \Bbs\Model\Thread();
+  //       $threadModel->createThread([
+  //         'title' => $_POST['thread_name'],
+  //         'comment' => $_POST['comment'],
+  //         'user_id' => $_SESSION['me']->id
+  //       ]);
+  //     // }
+  //     // catch (\Bbs\Exception\UnmatchEmailOrPassword $e) {
+  //     //   $this->setErrors('login', $e->getMessage());
+  //     //   return;
+  //     // }
+
+  //     // login処理
+  //     // session_regenerate_id(true);
+  //     // $_SESSION['me'] = $user;
+
+  //     // redirect to home
+  //     header('Location: '. SITE_URL);
+  //     exit;
+  //   // }
+  // }
 
 
   private function validate() {
